@@ -1,1 +1,1 @@
-{"tfjsVersion":"1.7.4","tmVersion":"2.4.10","packageVersion":"0.8.4-alpha2","packageName":"@teachablemachine/image","timeStamp":"2025-11-14T01:32:25.019Z","userMetadata":{},"modelName":"tm-my-image-model","labels":["강아지","고양이"],"imageSize":224}
+{"tfjsVersion":"1.7.4","tmVersion":"2.4.10","packageVersion":"0.8.4-alpha2","packageName":"@teachablemachine/image","timeStamp":"2025-11-14T05:00:26.586Z","userMetadata":{},"modelName":"tm-my-image-model","labels":["강아지","고양이"],"imageSize":224}
