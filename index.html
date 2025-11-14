@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Teachable Machine 이미지 분류 데모</title>
+
+  <!-- TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.9.0"></script>
+  <!-- Teachable Machine Image 라이브러리 -->
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      text-align: center;
+    }
+    #preview {
+      max-width: 100%;
+      max-height: 300px;
+      margin-top: 16px;
+      border: 1px solid #ddd;
+      object-fit: contain;
+    }
+    #result {
+      margin-top: 16px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>이미지로 테스트하는 Teachable Machine</h1>
+
+  <!-- 이미지 업로드 -->
+  <input type="file" id="image-input" accept="image/*" />
+
+  <!-- 업로드한 이미지 미리보기 -->
+  <div>
+    <img id="preview" alt="이미지를 업로드해주세요." />
+  </div>
+
+  <!-- 예측 결과 -->
+  <p id="result">이미지를 업로드하면 예측 결과가 표시됩니다.</p>
+
+  <script src="script.js"></script>
+</body>
+</html>
