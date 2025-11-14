@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Teachable Machine 이미지 분류 데모</title>
 
   <!-- TensorFlow.js -->
@@ -14,6 +15,7 @@
       box-sizing: border-box;
     }
 
+    /* 기본 폰트/간격 조금 키우기 */
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       max-width: 900px;
@@ -21,31 +23,28 @@
       padding: 0 16px 40px;
       color: #222;
       background-color: #fafafa;
+      font-size: 16px; /* 기본 폰트 크기 명시 */
     }
 
     h1 {
       text-align: center;
       margin-bottom: 8px;
+      font-size: 1.8rem;
     }
 
     .subtitle {
       text-align: center;
       color: #666;
-      font-size: 14px;
+      font-size: 0.95rem;
       margin-bottom: 24px;
     }
 
+    /* 레이아웃: PC 기준 */
     .layout {
       display: grid;
       grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
       gap: 24px;
       align-items: flex-start;
-    }
-
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
     }
 
     /* 드롭존 */
@@ -361,15 +360,103 @@
       margin-top: 4px;
     }
 
-    @media (max-width: 600px) {
+    /* ✅ 모바일 튜닝 */
+    @media (max-width: 768px) {
       body {
-        margin-top: 24px;
+        margin: 16px auto 24px;
+        padding: 0 14px 24px;
+        font-size: 16px; /* 모바일에서도 최소 16px 유지 */
       }
+
+      h1 {
+        font-size: 1.5rem;      /* 제목 크게 */
+        margin-bottom: 6px;
+      }
+
+      .subtitle {
+        font-size: 0.95rem;
+        margin-bottom: 16px;
+      }
+
+      .layout {
+        grid-template-columns: 1fr; /* 한 컬럼으로 */
+        gap: 16px;
+      }
+
+      .drop-zone {
+        padding: 16px;
+        min-height: 150px;
+      }
+
       .preview-wrapper {
         margin-top: 12px;
+        padding: 10px;
       }
+
+      #preview {
+        max-height: 260px;
+      }
+
+      .card {
+        padding: 12px 12px 10px;
+      }
+
+      .history-box {
+        padding: 10px 10px 8px;
+      }
+
       .history-list {
         max-height: 200px;
+      }
+
+      .prediction-row {
+        grid-template-columns: 0.9fr 2.8fr 0.8fr;
+        font-size: 12px;
+      }
+
+      .prediction-label {
+        font-size: 12px;
+      }
+
+      .prediction-percent {
+        font-size: 11px;
+      }
+
+      /* 버튼을 더 크게 + 터치 친화적으로 */
+      .actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+
+      .history-item {
+        grid-template-columns: auto 1fr;
+        gap: 6px;
+        padding: 6px;
+      }
+    }
+
+    /* 아주 작은 화면(아이폰 SE 급) 추가 보정 */
+    @media (max-width: 400px) {
+      body {
+        padding: 0 10px 20px;
+      }
+
+      h1 {
+        font-size: 1.35rem;
+      }
+
+      .subtitle {
+        font-size: 0.9rem;
+      }
+
+      .card-subtitle {
+        font-size: 11px;
       }
     }
   </style>
@@ -430,7 +517,7 @@
 
       <div class="history-box">
         <div class="history-header">
-          <span class="history-title">히스토리</span>
+          <span class="history-title">History</span>
           <button id="clear-history-btn" type="button" class="btn btn-danger">
             히스토리 초기화
           </button>
