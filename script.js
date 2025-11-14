@@ -1,68 +1,208 @@
-let model; // Teachable Machine 모델
-const modelFolder = "model/"; // 모델 파일이 들어 있는 폴더 경로
+// Teachable Machine에서 Export한 모델이 들어있는 경로
+const MODEL_FOLDER = "model/";
 
+// Teachable Machine 이미지 모델의 입력 해상도
+// 보통 224x224 or 192x192 등인데, TM 기본값이 224인 경우가 많음.
+// 필요하면 metadata.json 참고해서 맞춰줘도 됨.
+const IMAGE_SIZE = 224;
+
+let model;
+let isModelLoaded = false;
+
+// 요소 참조
+const imageInput = document.getElementById("image-input");
+const previewImg = document.getElementById("preview");
+const loadingEl = document.getElementById("loading");
+const topResultEl = document.getElementById("top-result");
+const probabilitiesEl = document.getElementById("probabilities");
+const dropZone = document.getElementById("drop-zone");
+
+/* -----------------------------
+ * 1. 모델 로딩
+ * ---------------------------*/
 async function loadModel() {
-  const modelURL = modelFolder + "model.json";
-  const metadataURL = modelFolder + "metadata.json";
+  const modelURL = MODEL_FOLDER + "model.json";
+  const metadataURL = MODEL_FOLDER + "metadata.json";
 
-  // tmImage는 teachablemachine-image 스크립트에서 제공
   model = await tmImage.load(modelURL, metadataURL);
-  console.log("모델 로드 완료");
+  isModelLoaded = true;
+  console.log("모델 로딩 완료");
+  topResultEl.textContent = "모델 로딩 완료! 이미지를 업로드해보세요.";
 }
 
-// 이미지 업로드 → 미리보기 + 예측
-function setupImageInput() {
-  const input = document.getElementById("image-input");
-  const preview = document.getElementById("preview");
-  const resultElement = document.getElementById("result");
+/* -----------------------------
+ * 2. 로딩 UI 제어
+ * ---------------------------*/
+function showLoading(show) {
+  loadingEl.style.display = show ? "flex" : "none";
+}
 
-  input.addEventListener("change", async (event) => {
-    const file = event.target.files[0];
-    if (!file) {
-      return;
-    }
+/* -----------------------------
+ * 3. 이미지 파일 처리 공통 함수
+ * ---------------------------*/
+function handleFile(file) {
+  if (!file) return;
 
-    // 업로드된 파일을 브라우저에서 볼 수 있게 URL 생성
-    const imageURL = URL.createObjectURL(file);
-    preview.src = imageURL;
-    resultElement.textContent = "이미지 로딩 중...";
+  // 미리보기용 URL 생성
+  const imageURL = URL.createObjectURL(file);
+  previewImg.src = imageURL;
+  topResultEl.textContent = "이미지 로딩 중...";
 
-    // 이미지가 실제로 <img>에 로드된 다음에 예측해야 함
-    preview.onload = async () => {
-      if (!model) {
-        resultElement.textContent = "모델을 아직 로드 중입니다. 잠시 후 다시 시도해주세요.";
+  // 이미지가 실제로 <img>에 로드된 이후에 분석
+  previewImg.onload = async () => {
+    try {
+      if (!isModelLoaded) {
+        topResultEl.textContent = "모델이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.";
         return;
       }
 
-      // 모델 예측
-      const prediction = await model.predict(preview); // <img> 태그 그대로 넣어도 됨
+      showLoading(true);
 
-      // 가장 확률이 높은 클래스 찾기
-      let best = prediction[0];
-      for (let i = 1; i < prediction.length; i++) {
-        if (prediction[i].probability > best.probability) {
-          best = prediction[i];
-        }
-      }
+      // 1) 캔버스에 리사이즈해서 그리기
+      const canvas = document.createElement("canvas");
+      canvas.width = IMAGE_SIZE;
+      canvas.height = IMAGE_SIZE;
+      const ctx = canvas.getContext("2d");
 
-      // 결과 출력
-      resultElement.textContent =
-        `예측: ${best.className} (${(best.probability * 100).toFixed(1)}%)`;
-    };
+      // 이미지 비율 유지하면서 중앙 맞추기 (간단 버전)
+      const scale = Math.min(
+        IMAGE_SIZE / previewImg.naturalWidth,
+        IMAGE_SIZE / previewImg.naturalHeight
+      );
+      const newWidth = previewImg.naturalWidth * scale;
+      const newHeight = previewImg.naturalHeight * scale;
+      const dx = (IMAGE_SIZE - newWidth) / 2;
+      const dy = (IMAGE_SIZE - newHeight) / 2;
+
+      ctx.fillStyle = "#ffffff"; // 배경 흰색
+      ctx.fillRect(0, 0, IMAGE_SIZE, IMAGE_SIZE);
+      ctx.drawImage(previewImg, dx, dy, newWidth, newHeight);
+
+      // 2) 모델 예측 (캔버스 전달)
+      const prediction = await model.predict(canvas);
+
+      // 3) 예측값 내림차순 정렬
+      prediction.sort((a, b) => b.probability - a.probability);
+
+      // 4) 상위 결과 텍스트 표시
+      const best = prediction[0];
+      topResultEl.textContent = `예측: ${best.className} (${(best.probability * 100).toFixed(1)}%)`;
+
+      // 5) 전체 확률 막대 그래프 렌더링
+      renderProbabilities(prediction);
+    } catch (err) {
+      console.error(err);
+      topResultEl.textContent = "예측 중 오류가 발생했습니다. 콘솔을 확인해주세요.";
+      probabilitiesEl.innerHTML = "";
+    } finally {
+      showLoading(false);
+    }
+  };
+}
+
+/* -----------------------------
+ * 4. 전체 클래스 확률 막대 그래프 렌더링
+ * ---------------------------*/
+function renderProbabilities(predictionArray) {
+  probabilitiesEl.innerHTML = "";
+
+  if (!predictionArray || predictionArray.length === 0) {
+    const msg = document.createElement("div");
+    msg.className = "empty-message";
+    msg.textContent = "예측 결과가 없습니다.";
+    probabilitiesEl.appendChild(msg);
+    return;
+  }
+
+  predictionArray.forEach((p) => {
+    const row = document.createElement("div");
+    row.className = "prediction-row";
+
+    const label = document.createElement("div");
+    label.className = "prediction-label";
+    label.textContent = p.className;
+
+    const barBg = document.createElement("div");
+    barBg.className = "bar-bg";
+
+    const barFill = document.createElement("div");
+    barFill.className = "bar-fill";
+    const percent = (p.probability * 100).toFixed(1);
+    barFill.style.width = `${percent}%`;
+
+    barBg.appendChild(barFill);
+
+    const percentText = document.createElement("div");
+    percentText.className = "prediction-percent";
+    percentText.textContent = `${percent}%`;
+
+    row.appendChild(label);
+    row.appendChild(barBg);
+    row.appendChild(percentText);
+
+    probabilitiesEl.appendChild(row);
   });
 }
 
-// 페이지 로드 시 모델과 이벤트 초기화
-window.addEventListener("load", async () => {
-  const resultElement = document.getElementById("result");
-  try {
-    resultElement.textContent = "모델 로딩 중...";
-    await loadModel();
-    resultElement.textContent = "모델 로딩 완료! 이미지를 업로드해보세요.";
-  } catch (e) {
-    console.error(e);
-    resultElement.textContent = "모델 로딩에 실패했습니다. 콘솔을 확인해주세요.";
-  }
+/* -----------------------------
+ * 5. 파일 input 이벤트
+ * ---------------------------*/
+function setupFileInput() {
+  imageInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    handleFile(file);
+  });
+}
 
-  setupImageInput();
+/* -----------------------------
+ * 6. 드래그 & 드롭 설정
+ * ---------------------------*/
+function setupDragAndDrop() {
+  // 클릭하면 숨겨진 file input을 눌러줌
+  dropZone.addEventListener("click", () => {
+    imageInput.click();
+  });
+
+  // 드래그 관련 이벤트
+  ["dragenter", "dragover"].forEach((eventName) => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.add("highlight");
+    });
+  });
+
+  ["dragleave", "drop"].forEach((eventName) => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.remove("highlight");
+    });
+  });
+
+  dropZone.addEventListener("drop", (e) => {
+    const dt = e.dataTransfer;
+    const file = dt.files[0];
+    if (file && file.type.startsWith("image/")) {
+      handleFile(file);
+    } else {
+      topResultEl.textContent = "이미지 파일만 업로드할 수 있습니다.";
+    }
+  });
+}
+
+/* -----------------------------
+ * 7. 초기화
+ * ---------------------------*/
+window.addEventListener("load", async () => {
+  topResultEl.textContent = "모델 로딩 중입니다...";
+  setupFileInput();
+  setupDragAndDrop();
+
+  try {
+    await loadModel();
+  } catch (err) {
+    console.error(err);
+    topResultEl.textContent = "모델 로딩에 실패했습니다. 경로나 파일 구성을 확인해주세요.";
+  }
 });
