@@ -16,10 +16,11 @@
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      max-width: 700px;
+      max-width: 900px;
       margin: 40px auto;
       padding: 0 16px 40px;
       color: #222;
+      background-color: #fafafa;
     }
 
     h1 {
@@ -36,11 +37,12 @@
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
       gap: 24px;
+      align-items: flex-start;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       .layout {
         grid-template-columns: 1fr;
       }
@@ -59,6 +61,7 @@
       flex-direction: column;
       justify-content: center;
       gap: 12px;
+      background-color: #fff;
     }
 
     .drop-zone.highlight {
@@ -89,17 +92,20 @@
     /* 미리보기 */
     .preview-wrapper {
       margin-top: 16px;
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid #eee;
     }
 
     #preview {
       max-width: 100%;
-      max-height: 280px;
-      border-radius: 12px;
-      border: 1px solid #eee;
+      max-height: 320px;
+      border-radius: 10px;
       object-fit: contain;
       display: block;
       margin: 0 auto;
-      background-color: #fafafa;
+      background-color: #f5f5f5;
     }
 
     /* 로딩 상태 */
@@ -129,21 +135,33 @@
     }
 
     /* 결과 박스 */
-    .result-box {
+    .card {
       border-radius: 12px;
       border: 1px solid #eee;
-      padding: 16px 14px 14px;
-      background-color: #fafafa;
-      min-height: 80px;
+      padding: 14px 14px 12px;
+      background-color: #fff;
+      margin-bottom: 16px;
     }
 
-    .result-title {
-      font-size: 14px;
-      font-weight: 600;
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
       margin-bottom: 8px;
     }
 
-    #top-result {
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .result-main {
       font-size: 15px;
       margin-bottom: 8px;
     }
@@ -158,7 +176,7 @@
 
     .prediction-row {
       display: grid;
-      grid-template-columns: 0.8fr 3fr 0.8fr;
+      grid-template-columns: 0.9fr 3.1fr 0.7fr;
       align-items: center;
       gap: 6px;
       font-size: 13px;
@@ -203,11 +221,162 @@
       color: #777;
       margin-top: 4px;
     }
+
+    /* 액션 버튼 */
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn {
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      background-color: #f8f8f8;
+      transition: background-color 0.15s ease, transform 0.05s ease, box-shadow 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background-color: #2a7ade;
+      border-color: #2a7ade;
+      color: #fff;
+    }
+
+    .btn-danger {
+      background-color: #ff4b4b;
+      border-color: #ff4b4b;
+      color: #fff;
+    }
+
+    .btn:hover {
+      background-color: #f0f0f0;
+      transform: translateY(-0.5px);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .btn-primary:hover {
+      background-color: #2366ba;
+    }
+
+    .btn-danger:hover {
+      background-color: #e04141;
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    /* 히스토리 */
+    .history-box {
+      border-radius: 12px;
+      border: 1px solid #eee;
+      padding: 12px 12px 10px;
+      background-color: #fff;
+    }
+
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .history-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .history-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+      background-color: #fafafa;
+    }
+
+    .history-thumb-wrapper {
+      width: 52px;
+      height: 52px;
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .history-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .history-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .history-label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .history-meta {
+      color: #777;
+      font-size: 11px;
+    }
+
+    .history-prob {
+      font-variant-numeric: tabular-nums;
+      color: #555;
+      font-size: 11px;
+    }
+
+    .empty-history {
+      font-size: 13px;
+      color: #777;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        margin-top: 24px;
+      }
+      .preview-wrapper {
+        margin-top: 12px;
+      }
+      .history-list {
+        max-height: 200px;
+      }
+    }
   </style>
 </head>
 <body>
   <h1>이미지 분류 AI 데모</h1>
-  <p class="subtitle">Teachable Machine으로 학습한 모델을 브라우저에서 바로 실행</p>
+  <p class="subtitle">Teachable Machine으로 학습한 모델을 브라우저에서 직접 실행해보는 예제</p>
 
   <div class="layout">
     <!-- 왼쪽: 업로드/미리보기 -->
@@ -215,7 +384,7 @@
       <div id="drop-zone" class="drop-zone">
         <div class="drop-zone-title">이미지를 업로드하거나 여기로 드래그하세요</div>
         <div class="drop-zone-desc">JPG, PNG 등 이미지 파일을 지원합니다.</div>
-        <div class="drop-zone-hint">클릭하면 파일 선택창이 열립니다.</div>
+        <div class="drop-zone-hint">클릭하면 파일 선택 창이 열립니다.</div>
       </div>
 
       <!-- 실제 input은 숨기고 drop-zone 클릭 시 trigger -->
@@ -236,12 +405,39 @@
       </div>
     </section>
 
-    <!-- 오른쪽: 결과 -->
+    <!-- 오른쪽: 결과 + 히스토리 -->
     <section>
-      <div class="result-box">
-        <div class="result-title">예측 결과</div>
-        <p id="top-result">아직 업로드된 이미지가 없습니다.</p>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">예측 결과</div>
+            <div class="card-subtitle">현재 업로드된 이미지를 기준으로 분석합니다.</div>
+          </div>
+        </div>
+        <p id="top-result" class="result-main">아직 업로드된 이미지가 없습니다.</p>
+
         <div id="probabilities"></div>
+
+        <div class="actions">
+          <button id="copy-result-btn" type="button" class="btn">
+            결과 복사
+          </button>
+          <button id="download-result-btn" type="button" class="btn btn-primary">
+            결과 .txt 다운로드
+          </button>
+        </div>
+      </div>
+
+      <div class="history-box">
+        <div class="history-header">
+          <span class="history-title">히스토리</span>
+          <button id="clear-history-btn" type="button" class="btn btn-danger">
+            히스토리 초기화
+          </button>
+        </div>
+        <div id="history-list" class="history-list">
+          <p class="empty-history">아직 기록이 없습니다. 이미지를 업로드하면 여기에 기록이 쌓입니다.</p>
+        </div>
       </div>
     </section>
   </div>
